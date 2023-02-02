@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { expressjwt } from 'express-jwt';
 import { IReq } from './types/request';
-import UserModel from '@src/models/user';
+import UserModel from '@src/models/User';
 import { getValidationResult, sendResponse } from './common';
 import EnvVars from '@src/constants/EnvVars';
 import { ErrorMessage } from './types/error';
