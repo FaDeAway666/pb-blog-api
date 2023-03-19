@@ -1,88 +1,49 @@
-// **** Variables **** //
+import mongoose, { SchemaType } from 'mongoose';
+import crypto from 'crypto';
+import EnvVars from '@src/constants/EnvVars';
+// TODO: import RSA
 
-const INVALID_CONSTRUCTOR_PARAM = 'nameOrObj arg must a string or an object ' + 
-  'with the appropriate user keys.';
-
-export enum UserRoles {
-  Standard,
-  Admin,
-}
-
-
-// **** Types **** //
-
-export interface IUser {
-  id: number;
-  name: string;
-  email: string;
-  pwdHash?: string;
-  role?: UserRoles;
-}
-
-export interface ISessionUser {
-  id: number;
-  email: string;
-  name: string;
-  role: IUser['role'];
-}
-
-
-// **** User **** //
-
-class User implements IUser {
-
-  public id: number;
-  public name: string;
-  public email: string;
-  public role?: UserRoles;
-  public pwdHash?: string;
-
-  /**
-   * Constructor()
-   */
-  public constructor(
-    name?: string,
-    email?: string,
-    role?: UserRoles,
-    pwdHash?: string,
-    id?: number, // id last cause usually set by db
-  ) {
-    this.name = (name ?? '');
-    this.email = (email ?? '');
-    this.role = (role ?? UserRoles.Standard);
-    this.pwdHash = (pwdHash ?? '');
-    this.id = (id ?? -1);
+const UserSchema = new mongoose.Schema(
+  {
+    userName: {
+      type: String,
+      required: [true, '请填写用户名'],
+      trim: true,
+    },
+    hashedPassword: {
+      type: String,
+      required: [true, '请填写密码'],
+    },
+    role: Number,
+  },
+  {
+    timestamps: true,
+    collection: 'user',
+    methods: {
+      // 密码加密
+      encryptPassword: function (password: string) {
+        if (!password) return '';
+        try {
+          return crypto
+            .createHmac('sha1', EnvVars.SALT)
+            .update(password)
+            .digest('hex');
+        } catch (err) {
+          return '';
+        }
+      },
+      // 验证密码
+      authenticate: function (plainText: string) {
+        // @ts-ignore
+        // eslint-disable-next-line
+        return this.hashedPassword === this.encryptPassword(plainText);
+      },
+    },
   }
+);
 
-  /**
-   * Get user instance from object.
-   */
-  public static from(param: object): User {
-    // Check is user
-    if (!User.isUser(param)) {
-      throw new Error(INVALID_CONSTRUCTOR_PARAM);
-    }
-    // Get user instance
-    const p = param as IUser;
-    return new User(p.name, p.email, p.role, p.pwdHash, p.id);
-  }
+UserSchema.virtual('password').set(function (password: string) {
+  this.hashedPassword = this.encryptPassword(password);
+});
 
-  /**
-   * Is this an object which contains all the user keys.
-   */
-  public static isUser(this: void, arg: unknown): boolean {
-    return (
-      !!arg &&
-      typeof arg === 'object' &&
-      'id' in arg &&
-      'email' in arg &&
-      'name' in arg &&
-      'role' in arg
-    );
-  }
-}
-
-
-// **** Export default **** //
-
-export default User;
+export default mongoose.model('User', UserSchema);

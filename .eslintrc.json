@@ -1,8 +1,6 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": [
-    "@typescript-eslint"
-  ],
+  "plugins": ["@typescript-eslint"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -16,6 +14,7 @@
     "@typescript-eslint/explicit-member-accessibility": "warn",
     "@typescript-eslint/no-misused-promises": 0,
     "@typescript-eslint/no-floating-promises": 0,
+    "@typescript-eslint/ban-ts-comment": "off",
     "max-len": [
       "warn",
       {
@@ -31,7 +30,7 @@
     "node/no-process-env": 1,
     "node/no-unsupported-features/es-syntax": [
       "error",
-      { "ignores" : ["modules"] }
+      { "ignores": ["modules"] }
     ],
     "node/no-missing-import": 0,
     "node/no-unpublished-import": 0
