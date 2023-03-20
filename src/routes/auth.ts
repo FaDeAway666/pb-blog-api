@@ -4,7 +4,7 @@ import API from '@src/constants/api';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 import { IReq } from './types/express/misc';
 import User from '@src/models/user';
-import { login, decodeJwt, isAuthLegal } from '@src/services/auth';
+import { login, decodeJwt, isAuthLegal, logout } from '@src/services/auth';
 import EnvVars from '@src/constants/EnvVars';
 const authRouter = Router();
 
@@ -44,6 +44,7 @@ function testAddUser(req: IReq<User>, res: Response) {
 }
 
 authRouter.post(API.AUTH.LOGIN, login);
+authRouter.post(API.AUTH.LOGOUT, logout);
 authRouter.post(
   API.AUTH.ADD,
   [decodeJwt, isAuthLegal],

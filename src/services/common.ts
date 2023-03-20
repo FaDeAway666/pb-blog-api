@@ -21,3 +21,16 @@ export const requiredEmptyResponse = (
   }
   return null;
 };
+
+export const sendResponse = <T>(
+  res: Response,
+  result: T,
+  msg: string,
+  code: HttpStatusCodes = HttpStatusCodes.OK,
+  success = true
+) => {
+  return res
+    .status(code)
+    .json(responseData(result, msg, success ?? false))
+    .end();
+};

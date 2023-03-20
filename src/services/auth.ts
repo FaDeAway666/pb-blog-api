@@ -5,7 +5,7 @@ import { expressjwt } from 'express-jwt';
 import { IReq } from './types/request';
 import { LoginParams } from './types/required-params';
 import UserModel from '@src/models/user';
-import { requiredEmptyResponse, responseData } from './common';
+import { requiredEmptyResponse, sendResponse } from './common';
 import EnvVars from '@src/constants/EnvVars';
 import { ErrorMessage } from './types/error';
 
@@ -37,30 +37,35 @@ async function login(req: IReq<User>, res: Response) {
   const result = await UserModel.findOne({ userName }).exec();
   console.log(result);
   if (!result) {
-    return res
-      .status(HttpStatusCodes.BAD_REQUEST)
-      .json(responseData(null, '用户不存在', false))
-      .end();
+    return sendResponse(res, null, '用户不存在', HttpStatusCodes.BAD_REQUEST);
   } else if (!result.authenticate(password)) {
-    return res
-      .status(HttpStatusCodes.UNAUTHORIZED)
-      .json(responseData(null, '密码错误', false))
-      .end();
+    return sendResponse(res, null, '密码错误', HttpStatusCodes.BAD_REQUEST);
   } else {
     const token = jwt.sign(
       { id: result._id, role: result.role },
       EnvVars.Jwt.Secret,
       {
-        expiresIn: 100,
+        expiresIn: '24h',
       }
     );
     res.cookie('token', token, {
       expires: new Date(Date.now() + 9999),
     });
-    return res
-      .status(HttpStatusCodes.OK)
-      .json(responseData(null, '登录成功'))
-      .end();
+    return sendResponse(res, result, '登录成功');
+  }
+}
+
+function logout(req: Request, res: Response) {
+  try {
+    res.clearCookie('token');
+    return sendResponse(res, null, '登出成功');
+  } catch (e) {
+    return sendResponse(
+      res,
+      null,
+      e as string,
+      HttpStatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 }
 
@@ -82,12 +87,9 @@ function isAuthLegal(
   if (err) {
     let msg = err?.message;
     err.name === 'UnauthorizedError' && (msg = ErrorMessage.Login.UnAuthorized);
-    return res
-      .status(HttpStatusCodes.FORBIDDEN)
-      .json(responseData(null, msg, false))
-      .end();
+    return sendResponse(res, null, msg, HttpStatusCodes.FORBIDDEN);
   }
   next();
 }
 
-export { login, decodeJwt, isAuthLegal };
+export { login, logout, decodeJwt, isAuthLegal };
