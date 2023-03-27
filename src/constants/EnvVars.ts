@@ -29,6 +29,10 @@ const EnvVars = {
     port: process.env.DB_PORT ?? '',
     name: process.env.DB_NAME ?? '',
   },
+  FILE: {
+    docPath: process.env.FILE_DOC_PATH ?? '',
+    imgPath: process.env.FILE_IMG_PATH ?? '',
+  },
   SALT: process.env.SALT ?? 'WPB',
 } as const;
 

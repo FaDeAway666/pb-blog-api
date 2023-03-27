@@ -5,7 +5,7 @@ import { expressjwt } from 'express-jwt';
 import { IReq } from './types/request';
 import { LoginParams } from './types/required-params';
 import UserModel from '@src/models/user';
-import { requiredEmptyResponse, sendResponse } from './common';
+import { getValidationResult, sendResponse } from './common';
 import EnvVars from '@src/constants/EnvVars';
 import { ErrorMessage } from './types/error';
 
@@ -18,21 +18,14 @@ interface User {
 interface AuthRequest extends Request {
   auth?: {
     _id: string;
+    userName: string;
     role?: string;
   };
 }
 
 async function login(req: IReq<User>, res: Response) {
   const { userName, password } = req.body;
-
-  const isRequiredEmpty = requiredEmptyResponse(
-    {
-      [LoginParams.UserName]: userName,
-      [LoginParams.Password]: password,
-    },
-    res
-  );
-  if (isRequiredEmpty) return;
+  if (getValidationResult(req, res)) return;
 
   const result = await UserModel.findOne({ userName }).exec();
   console.log(result);
@@ -42,7 +35,7 @@ async function login(req: IReq<User>, res: Response) {
     return sendResponse(res, null, '密码错误', HttpStatusCodes.BAD_REQUEST);
   } else {
     const token = jwt.sign(
-      { id: result._id, role: result.role },
+      { id: result._id, userName: result.userName, role: result.role },
       EnvVars.Jwt.Secret,
       {
         expiresIn: '24h',

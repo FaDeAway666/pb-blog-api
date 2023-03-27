@@ -15,13 +15,14 @@
     "@typescript-eslint/no-misused-promises": 0,
     "@typescript-eslint/no-floating-promises": 0,
     "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
     "max-len": [
       "warn",
       {
         "code": 80
       }
     ],
-    "comma-dangle": ["warn", "always-multiline"],
+    "comma-dangle": ["off", "always-multiline"],
     "no-console": 1,
     "no-extra-boolean-cast": 0,
     "semi": 1,

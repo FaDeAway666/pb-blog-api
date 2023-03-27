@@ -6,6 +6,7 @@ import { IReq } from './types/express/misc';
 import User from '@src/models/user';
 import { login, decodeJwt, isAuthLegal, logout } from '@src/services/auth';
 import EnvVars from '@src/constants/EnvVars';
+import { loginValidator } from '@src/services/validator/auth';
 const authRouter = Router();
 
 interface User {
@@ -17,6 +18,7 @@ interface User {
 interface AuthRequest extends Request {
   auth?: {
     _id: string;
+    userName: string;
     role?: string;
   };
 }
@@ -43,7 +45,7 @@ function testAddUser(req: IReq<User>, res: Response) {
   });
 }
 
-authRouter.post(API.AUTH.LOGIN, login);
+authRouter.post(API.AUTH.LOGIN, loginValidator, login);
 authRouter.post(API.AUTH.LOGOUT, logout);
 authRouter.post(
   API.AUTH.ADD,

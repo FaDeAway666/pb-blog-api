@@ -1,16 +1,15 @@
 import { Router } from 'express';
-import jetValidator from 'jet-validator';
 import API from '@src/constants/api';
 
 import adminMw from './middleware/adminMw';
 // import Paths from './constants/Paths';
 // import User from '@src/models/User';
 import authRouter from './auth';
+import categoryRouter from './category';
 
 // **** Variables **** //
 
-const apiRouter = Router(),
-  validate = jetValidator();
+const apiRouter = Router();
 
 // **** Setup **** //
 
@@ -31,6 +30,7 @@ const apiRouter = Router(),
 
 // Add AuthRouter
 apiRouter.use(API.AUTH.BASE, authRouter);
+apiRouter.use(API.CATEGORY.BASE, categoryRouter);
 
 // ** Add UserRouter ** //
 
