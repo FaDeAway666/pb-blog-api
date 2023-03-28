@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import API from '@src/constants/api';
 
-import adminMw from './middleware/adminMw';
 // import Paths from './constants/Paths';
 // import User from '@src/models/User';
 import authRouter from './auth';
