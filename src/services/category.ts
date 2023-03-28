@@ -3,7 +3,7 @@ import CategoryModel from '@src/models/category';
 import { Request, Response } from 'express';
 import { getValidationResult, sendResponse } from './common';
 import { ErrorMessage } from './types/error';
-import { AuthRequest, ExtraRequest, IReq } from './types/request';
+import { AuthRequest } from './types/request';
 
 interface ICategory {
   categoryName: string;
