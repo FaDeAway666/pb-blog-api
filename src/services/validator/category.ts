@@ -32,3 +32,12 @@ export const removeCategoryValidator = checkSchema({
     },
   },
 });
+
+export const getCategoryValidator = checkSchema({
+  id: {
+    in: 'query',
+    notEmpty: {
+      errorMessage: '请传入类目id',
+    },
+  },
+});

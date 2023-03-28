@@ -1,6 +1,6 @@
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 import CategoryModel from '@src/models/category';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { getValidationResult, sendResponse } from './common';
 import { ErrorMessage } from './types/error';
 import { AuthRequest, ExtraRequest, IReq } from './types/request';
@@ -9,6 +9,7 @@ interface ICategory {
   categoryName: string;
   private?: boolean;
   parent?: string;
+  isRoot?: boolean;
 }
 
 async function createCategory(req: AuthRequest<ICategory>, res: Response) {
@@ -27,24 +28,36 @@ async function createCategory(req: AuthRequest<ICategory>, res: Response) {
       false
     );
 
-  CategoryModel.create(
-    {
+  try {
+    // 如果添加的是子类目，给父类目设置hasChildren为true
+    if (body.parent) {
+      const parent = await CategoryModel.findById(body.parent);
+      if (!parent?.hasChildren)
+        await CategoryModel.updateOne(
+          {
+            _id: body.parent,
+          },
+          {
+            ...parent?.toObject(),
+            hasChildren: true,
+          }
+        );
+    }
+    const result = await CategoryModel.create({
       ...body,
       createUser: auth!.userName,
-    },
-    (err, data) => {
-      if (err) {
-        return sendResponse(
-          res,
-          null,
-          ErrorMessage.Category('添加'),
-          HttpStatusCodes.INTERNAL_SERVER_ERROR,
-          false
-        );
-      }
-      return sendResponse(res, data);
-    }
-  );
+    });
+    return sendResponse(res, result);
+  } catch (e) {
+    console.log(e);
+    return sendResponse(
+      res,
+      null,
+      ErrorMessage.Category('添加'),
+      HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      false
+    );
+  }
 }
 
 async function editCategory(req: AuthRequest<ICategory>, res: Response) {
@@ -78,13 +91,30 @@ async function editCategory(req: AuthRequest<ICategory>, res: Response) {
   }
 }
 
+function updateParent(id: string) {
+  CategoryModel.find({
+    parent: id,
+  }).then((children) => {
+    if (children.length === 0) {
+      CategoryModel.updateOne({ _id: id }, { hasChildren: false });
+    }
+  });
+}
+
 async function removeCategory(req: AuthRequest, res: Response) {
   if (getValidationResult(req, res)) return;
   const { id } = req.params;
+  // update parent
   try {
+    const category = await CategoryModel.findById(id);
     const result = await CategoryModel.deleteOne({
       _id: id,
     });
+    if (category) {
+      const parent = category.toObject().parent;
+      parent && updateParent(parent);
+    }
+
     if (result.deletedCount) {
       return sendResponse(res, null, '类目删除成功');
     }
@@ -106,4 +136,50 @@ async function removeCategory(req: AuthRequest, res: Response) {
   }
 }
 
-export { createCategory, editCategory, removeCategory };
+async function getRootCategories(req: Request, res: Response) {
+  try {
+    const result = await CategoryModel.find({
+      isRoot: true,
+      private: false,
+    });
+
+    return sendResponse(res, result);
+  } catch (e) {
+    return sendResponse(
+      res,
+      null,
+      ErrorMessage.Unknow,
+      HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      false
+    );
+  }
+}
+
+async function getChildCategory(req: Request, res: Response) {
+  if (getValidationResult(req, res)) return;
+  const { id } = req.query;
+  try {
+    const result = await CategoryModel.find({
+      parent: id,
+      private: false,
+    });
+
+    return sendResponse(res, result);
+  } catch (e) {
+    return sendResponse(
+      res,
+      null,
+      ErrorMessage.Unknow,
+      HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      false
+    );
+  }
+}
+
+export {
+  createCategory,
+  editCategory,
+  removeCategory,
+  getRootCategories,
+  getChildCategory,
+};

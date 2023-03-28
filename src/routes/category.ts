@@ -3,16 +3,26 @@ import { decodeJwt, isAuthLegal } from '@src/services/auth';
 import {
   createCategory,
   editCategory,
+  getChildCategory,
+  getRootCategories,
   removeCategory,
 } from '@src/services/category';
 import { Router, Request, Response, NextFunction } from 'express';
 import {
   createCategoryValidator,
   editCategoryValidator,
+  getCategoryValidator,
   removeCategoryValidator,
 } from '../services/validator/category';
 
 const categoryRouter = Router();
+
+categoryRouter.get('/', getRootCategories);
+categoryRouter.get(
+  api.CATEGORY.GET_CHILD,
+  getCategoryValidator,
+  getChildCategory
+);
 
 categoryRouter.post(
   api.CATEGORY.ADD,

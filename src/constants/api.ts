@@ -8,6 +8,7 @@ export default {
   },
   CATEGORY: {
     BASE: '/category',
+    GET_CHILD: '/getChild',
     ADD: '/add',
     REMOVE: '/remove/:id',
     EDIT: '/edit/:id',

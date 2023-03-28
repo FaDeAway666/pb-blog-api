@@ -7,8 +7,20 @@ const CategorySchema = new mongoose.Schema(
       required: [true, '请输入类目名称'],
       trim: true,
     },
+    isRoot: {
+      type: Boolean,
+      default: false,
+    },
     parent: String,
     createUser: String,
+    hasChildren: {
+      type: Boolean,
+      default: false,
+    },
+    private: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
