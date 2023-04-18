@@ -1,5 +1,6 @@
 export default {
   BASE: '/api',
+  UPLOAD_IMG: '/uploadImg',
   AUTH: {
     BASE: '/auth',
     LOGIN: '/login',

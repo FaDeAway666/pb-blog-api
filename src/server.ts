@@ -11,6 +11,7 @@ import logger from 'jet-logger';
 import mongoose from 'mongoose';
 
 import 'express-async-errors';
+import fileUpload from 'express-fileupload';
 
 import BaseRouter from '@src/routes/api';
 // import Paths from '@src/routes/constants/Paths';
@@ -40,6 +41,11 @@ mongoose
 // **** Setup **** //
 
 // Basic middleware
+app.use(
+  fileUpload({
+    createParentPath: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(EnvVars.CookieProps.Secret));

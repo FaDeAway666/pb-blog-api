@@ -3,7 +3,7 @@ import { expressjwt } from 'express-jwt';
 import API from '@src/constants/api';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 import { IReq } from './types/express/misc';
-import User from '@src/models/User';
+import User from '@src/models/user';
 import { login, decodeJwt, isAuthLegal, logout } from '@src/services/auth';
 import EnvVars from '@src/constants/EnvVars';
 import { loginValidator } from '@src/services/validator/auth';

@@ -5,6 +5,8 @@ import API from '@src/constants/api';
 // import User from '@src/models/User';
 import authRouter from './auth';
 import categoryRouter from './category';
+import articleRouter from './article';
+import baseRouter from './base';
 
 // **** Variables **** //
 
@@ -28,8 +30,10 @@ const apiRouter = Router();
 // );
 
 // Add AuthRouter
+apiRouter.use('', baseRouter);
 apiRouter.use(API.AUTH.BASE, authRouter);
 apiRouter.use(API.CATEGORY.BASE, categoryRouter);
+apiRouter.use(API.ARTICLE.BASE, articleRouter);
 
 // ** Add UserRouter ** //
 

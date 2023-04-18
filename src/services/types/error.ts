@@ -8,6 +8,9 @@ export const ErrorMessage = {
   Category: function (operation: string) {
     return `${operation}类目失败，请联系管理员`;
   },
+  Article: function (operation: string) {
+    return `${operation}文章失败，请联系管理员`;
+  },
 } as const;
 
 export const ErrorType = {
