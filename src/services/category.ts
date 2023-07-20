@@ -2,8 +2,8 @@ import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 import CategoryModel from '@src/models/category';
 import { Request, Response } from 'express';
 import { getValidationResult, sendResponse } from './common';
-import { ErrorMessage } from './types/error';
-import { AuthRequest } from './types/request';
+import { ErrorMessage } from '../types/error';
+import { AuthRequest } from '../types/request';
 
 interface ICategory {
   categoryName: string;

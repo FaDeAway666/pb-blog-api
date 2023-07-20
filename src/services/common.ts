@@ -1,7 +1,7 @@
 import { Response, Request } from 'express';
 import { validationResult } from 'express-validator';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
-import { ErrorMessage } from './types/error';
+import { ErrorMessage } from '../types/error';
 
 export const responseData = <T>(result: T, msg: string, success = true) => ({
   result,

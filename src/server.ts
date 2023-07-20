@@ -3,6 +3,7 @@
  */
 
 import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import path from 'path';
 import helmet from 'helmet';
@@ -46,7 +47,7 @@ app.use(
     createParentPath: true,
   })
 );
-app.use(express.json());
+app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(EnvVars.CookieProps.Secret));
 

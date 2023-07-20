@@ -1,6 +1,6 @@
 export default {
   BASE: '/api',
-  UPLOAD_IMG: '/uploadImg',
+  UPLOAD: '/upload',
   AUTH: {
     BASE: '/auth',
     LOGIN: '/login',
@@ -16,9 +16,10 @@ export default {
   },
   ARTICLE: {
     BASE: '/article',
+    LIST: '/list',
     ADD: '/add',
-    REMOVE: '/remove',
-    DETAIL: '/detail',
-    EDIT: '/edit',
+    REMOVE: '/remove/:id',
+    DETAIL: '/detail/:id',
+    EDIT: '/edit/:id',
   },
 } as const;
