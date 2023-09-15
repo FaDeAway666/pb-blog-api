@@ -2,14 +2,24 @@ import EnvVars from '@src/constants/EnvVars';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 import ArticleModel from '@src/models/article';
 import { UploadedFile } from 'express-fileupload';
-import { readFileSync, rmSync } from 'fs';
+import { readFileSync, rmSync, writeFileSync } from 'fs';
 import { Request, Response } from 'express';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
+import type { AutoHighlightResult } from 'highlight.js';
 import { getValidationResult, sendResponse } from './common';
 import { ErrorMessage } from '../types/error';
 import { AuthRequest, QReq } from '../types/request';
 import { uuid } from '@src/util/tool';
+
+/**
+ * 接口罗列
+ * 1. 新建文章
+ * 2. 编辑文章内容
+ * 3. 按时间倒序查询文章列表
+ * 4. 分页查询文章内容
+ * 5. 上传文章文件
+ */
 
 interface IArticle {
   title: string;
@@ -21,8 +31,10 @@ interface IArticle {
 }
 
 marked.setOptions({
-  highlight: function (code) {
-    return hljs.highlightAuto(code).value;
+  highlight: function (code: string) {
+    // eslint-disable-next-line
+    const result = hljs.highlightAuto(code);
+    return result.value as string;
   },
 });
 
@@ -66,22 +78,6 @@ export const createArticle = async (
       false
     );
   }
-
-  // const file = files.file as UploadedFile;
-  // const lastIndex = file.name.lastIndexOf('.');
-  // const suffix = file.name.substring(lastIndex + 1);
-  // if (suffix !== 'md')
-  //   return sendResponse(
-  //     res,
-  //     null,
-  //     '请上传md格式的文件',
-  //     HttpStatusCodes.BAD_REQUEST,
-  //     false
-  //   );
-
-  // console.log(`.${EnvVars.FILE.docPath}/${file.name}`, auth);
-  // const fileId = uuid();
-  // await file.mv(`${process.cwd()}${EnvVars.FILE.docPath}/${fileId}.md`);
 };
 
 export const deleteArticle = async (req: AuthRequest, res: Response) => {
@@ -106,11 +102,61 @@ export const deleteArticle = async (req: AuthRequest, res: Response) => {
 };
 
 export const updateArticle = async (
-  req: AuthRequest<IArticle>,
+  req: AuthRequest<{ id: string }>,
   res: Response
 ) => {
   const { body, auth, files } = req;
   if (!files) return;
+
+  const file = files.file as UploadedFile;
+  const lastIndex = file.name.lastIndexOf('.');
+  const suffix = file.name.substring(lastIndex + 1);
+  if (suffix !== 'md')
+    return sendResponse(
+      res,
+      null,
+      '请上传md格式的文件',
+      HttpStatusCodes.BAD_REQUEST,
+      false
+    );
+
+  console.log(`.${EnvVars.FILE.docPath}/${file.name}`, auth);
+  const fileId = uuid();
+  const fileUrl = `${EnvVars.FILE.docPath}/${fileId}.md`;
+  try {
+    await file.mv(`${process.cwd()}${fileUrl}`);
+  } catch (e) {
+    return sendResponse(
+      res,
+      null,
+      '文件上传失败',
+      HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      false
+    );
+  }
+
+  try {
+    const model = await ArticleModel.findById(body.id);
+    await model?.update({
+      ...model,
+      path: fileUrl,
+    });
+    return sendResponse(
+      res,
+      {
+        ...model,
+      },
+      '上传成功'
+    );
+  } catch (e) {
+    return sendResponse(
+      res,
+      e,
+      '数据更新失败',
+      HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      false
+    );
+  }
 };
 
 interface QArticle {
@@ -190,4 +236,11 @@ export const getArticleDetail = async (req: Request, res: Response) => {
       false
     );
   }
+};
+
+export const saveArticle = async (
+  req: AuthRequest<{ id: string; content: string }>,
+  res: Response
+) => {
+  if (getValidationResult(req, res)) return;
 };

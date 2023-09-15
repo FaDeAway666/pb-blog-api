@@ -37,3 +37,5 @@ export const upload = async (req: Request, res: Response) => {
     '上传成功'
   );
 };
+
+// 获取每日一言
