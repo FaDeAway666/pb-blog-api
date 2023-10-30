@@ -17,7 +17,7 @@ import {
 
 const categoryRouter = Router();
 
-categoryRouter.get('/', getRootCategories);
+categoryRouter.get('', getRootCategories);
 categoryRouter.get(
   api.CATEGORY.GET_CHILD,
   getCategoryValidator,

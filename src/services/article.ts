@@ -26,15 +26,13 @@ interface IArticle {
   categoryId: string[];
   coverImg?: string;
   tag?: Array<string>;
-  path: string;
-  createUser: string;
 }
 
 marked.setOptions({
   highlight: function (code: string) {
     // eslint-disable-next-line
     const result = hljs.highlightAuto(code);
-    return result.value as string;
+    return result.value;
   },
 });
 

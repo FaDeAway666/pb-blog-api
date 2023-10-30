@@ -44,6 +44,8 @@ async function createCategory(req: AuthRequest<ICategory>, res: Response) {
         );
     }
     const result = await CategoryModel.create({
+      private: false,
+      isRoot: true,
       ...body,
       createUser: auth!.userName,
     });
